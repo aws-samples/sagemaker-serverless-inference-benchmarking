@@ -1,0 +1,6 @@
+**/__pycache__
+sagemaker_serverless_benchmarking.egg-info
+
+
+# Jupyter Notebook
+.ipynb_checkpoints

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      <title>SageMaker Serverless Endpoint Benchmarking Results</title>
+   </head>
+   <body>
+      <h1>Benchmark Configuration </h1>
+       <p>The table below provides a list of configuration options that were supplied to this benchmark</p>
+      {{ context.benchmark_configuration }}
+       
+      <h1>Stability Benchmark Results</h1>
+    
+      <h2>Invocation Latency and Error Metrics</h2>
+      <p> The table below provides a summary of invocation latency metrics as measured from the client side. The metrics include the minimum, mean, median, and max latencies in addition to the interquartile range (iqr) which shows the difference 
+        in latency between the 75th and 25th percentiles. Only the successful memory configurations are included.</p>
+      {{ context.stability_benchmark_summary }}
+      <h2>Request Latency Distribution</h2>
+       <p>The distribution of latencies is summarized in the chart below. Longer latencies due to cold start are not included.</p>
+      <img src="data:image/png;base64,{{ context.stability_latency_distribution }}">
+      
+      <h2>Endpoint CloudWatch Metrics</h2>
+    <p>The average values of the metrics monitored by CloudWatch are captured below. The ModelSetupTime metric represents the time it takes to launch new compute resources for a serverless endpoint and indicates the impact of a cold start. This metric may not appear as endpoints are launched in a warm state. You can invoke a cold start by increasing the <b>cold_start_delay</b> parameter when configuring the benchmark. Alternatively, the CloudWatch metrics for the concurrency benchmark bellow are more likely to capture this metric due to the larger number of compute resources involved. Refer to the <a href='https://docs.aws.amazon.com/sagemaker/latest/dg/monitoring-cloudwatch.html'>documentation </a>for an explanation of each metric.</p>
+      {{ context.stability_endpoint_metrics }}
+       
+      <h2>Cost Savings and Performance Analysis</h2>
+      <p>This section provides an analysis of cost and performance of each memory configuration. Additionally it provides and overview of the expected cost savings compared to a Real Time endpoint running on a comparable SageMaker hosting instance. 
+      <p>The graph below graph visualizes the performance and cost trade-off of each memory configuration. </p>
+      <img src="data:image/png;base64,{{ context.cost_vs_performance }}">
+      <p>The table below provides an estimate of the savings compared against a real-time hosting instance based on the number of monthly invocations.</p>
+      <p><b>Optimal memory configuration: </b>{{ context.optimal_memory_config }}</p>
+      <p><b>Comparable SageMaker Hosting Instance: </b>{{ context.comparable_instance }}</p>
+      {{ context.cost_savings_table }}
+       
+      <h1>Concurency Benchmark Results</h1>
+       <p>This benchmark tests the performance of specified MaxConcurrency configurations. It helps determine the right setting to support the expected invocation volumes.</p>
+      <h2>Invocation Latency and Error Metrics</h2>
+       <p>Latency, error, and throughput (TPS) metrics are captured in the table below. This should help inform the minimum MaxConcurrency configuration that can support the expected traffic.</p>
+       
+      {{ context.concurrency_benchmark_summary }}
+      <h2>Request Latency Distribution</h2>
+       <p>The charts below summarize the latency distributions under different load patterns (number of concurrent clients) and MaxConcurrency settings</p>
+      <img src="data:image/png;base64,{{ context.concurrency_latency_distribution }}">
+      <h2>Endpoint CloudWatch Metrics</h2>
+       {{ context.concurrency_cloudwatch_metrics }}
+       
+   </body>
+</html>

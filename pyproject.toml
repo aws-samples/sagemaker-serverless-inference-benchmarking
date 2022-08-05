@@ -1,0 +1,30 @@
+[build-system]
+requires      = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sagemaker-serverless-benchmarking"
+version = "0.1.0"
+description = "Benchmark sagemaker serverless endpoints for cost and performance"
+readme = "README.md"
+authors = [{ name = "Simon Zamarin", email = "szamarin@amazon.com" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["sagemaker", "inference", "hosting"]
+dependencies = [
+    "boto3>=1.20.21,<2.0",
+    "pandas",
+    "seaborn",
+    "Jinja2",
+    "numpy",
+    "matplotlib",
+    'tomli; python_version < "3.11"',
+]
+requires-python = ">=3.7"
+
+[project.optional-dependencies]
+dev = ["black", "bumpver", "isort", "pip-tools"]

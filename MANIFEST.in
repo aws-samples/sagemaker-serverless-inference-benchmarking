@@ -1,0 +1,1 @@
+include sagemaker_serverless_benchmarking/report_templates/*.html
