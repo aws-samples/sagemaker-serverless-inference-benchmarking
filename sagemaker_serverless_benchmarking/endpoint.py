@@ -188,7 +188,7 @@ class ServerlessEndpoint:
         return all_metrics
 
     def clean_up(self):
-        self._validate_deployment()
+        
         self._sm_client.delete_endpoint(EndpointName=self._endpoint_name)
         self._sm_client.delete_endpoint_config(
             EndpointConfigName=self._endpoint_config_name
@@ -217,6 +217,7 @@ class ServerlessEndpoint:
         except botocore.exceptions.WaiterError as err:
             self._deployment_failed = True
             self._failure_reason = self.describe_endpoint().get("FailureReason")
+            self.clean_up()
             return None
 
         resp = self.describe_endpoint()
