@@ -15,6 +15,7 @@ from sagemaker_serverless_benchmarking.analysis import (
     summarize_stability_results)
 from sagemaker_serverless_benchmarking.endpoint import ServerlessEndpoint
 from sagemaker_serverless_benchmarking.report import generate_html_report
+from sagemaker_serverless_benchmarking.utils import read_example_args_file
 
 
 def create_endpoint(
@@ -126,7 +127,8 @@ def setup_endpoints(
             endpoint_futures.append(future)
             time.sleep(2)
 
-        endpoints = [future.result() for future in endpoint_futures]
+        endpoints = [future.result() for future in as_completed(endpoint_futures)]
+
 
     endpoints = [endpoint for endpoint in endpoints if endpoint._created]
     time.sleep(sleep)  # sleep to increase chance of cold start
@@ -142,9 +144,10 @@ def stability_benchmark(
     errors = 0
 
     for _ in range(num_invocations):
-        invoke_args = random.choice(invoke_args_list)
+        invoke_arg_idx = random.randint(0, len(invoke_args_list)-1)
+        invoke_args = invoke_args_list[invoke_arg_idx]
         result = timed_invocation(endpoint, invoke_args)
-        result.update(invoke_args)
+        result["invoke_arg_index"] = invoke_arg_idx 
 
         if result["invocation_latency"] == -1:
             errors += 1
@@ -241,7 +244,7 @@ def run_concurrency_benchmark(
     endpoints: List[ServerlessEndpoint],
     invoke_args_list: List[Dict[str, str]],
     num_invocations: int = 1000,
-    num_clients_multipliers: List[int] = [1, 1.5, 1.75, 2],
+    num_clients_multipliers: List[float] = [1, 1.5, 1.75, 2],
     result_save_path: str = ".",
 ):
 
@@ -323,7 +326,7 @@ def tear_down_endpoints(endpoints: List[ServerlessEndpoint]):
 
 def run_serverless_benchmarks(
     model_name: str,
-    invoke_args_examples: List[Dict[str, str]],
+    invoke_args_examples_file: Path,
     cold_start_delay: int = 0,
     memory_sizes: List[int] = [1024, 2048, 3072, 4096, 5120, 6144],
     stability_benchmark_invocations: int = 1000,
@@ -331,7 +334,7 @@ def run_serverless_benchmarks(
     include_concurrency_benchmark: bool = True,
     concurrency_benchmark_max_conc: List[int] = [2, 4, 8],
     concurrency_benchmark_invocations: int = 1000,
-    concurrency_num_clients_multiplier: List[int] = [1, 1.5, 1.75, 2],
+    concurrency_num_clients_multiplier: List[float] = [1, 1.5, 1.75, 2],
     result_save_path: str = ".",
 )->str:
     """Runs a suite of SageMaker Serverless Benchmarks on the specified model_name. 
@@ -348,7 +351,7 @@ def run_serverless_benchmarks(
 
     Args:
         model_name (str): Name of the SageMaker Model resource
-        invoke_args_examples (List[Dict[str, str]]): A list of example arguments that will be passed to the InvokeEndpoint SageMaker Runtime API
+        invoke_args_examples_file (Path: Path to the jsonl file containing the example invocation arcguments
         cold_start_delay (int, optional): Number of seconds to sleep before starting the benchmark. Helps to induce a cold start on initial invocation. Defaults to 0.
         memory_sizes (List[int], optional): List of memory configurations to benchmark Defaults to [1024, 2048, 3072, 4096, 5120, 6144].
         stability_benchmark_invocations (int, optional): Total number of invocations for the stability benchmark. Defaults to 1000.
@@ -365,8 +368,9 @@ def run_serverless_benchmarks(
     """
 
     function_args = locals()
-    function_args.pop("invoke_args_examples")
     benchmark_config = pd.Series(function_args).to_frame()
+
+    invoke_args_examples = read_example_args_file(invoke_args_examples_file)
 
     stability_endpoints = setup_endpoints(
         model_name, memory_size=memory_sizes, max_concurrency=1, sleep=cold_start_delay

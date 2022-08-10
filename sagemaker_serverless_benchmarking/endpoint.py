@@ -1,4 +1,5 @@
 import datetime as dt
+import logging
 import time
 import uuid
 from dataclasses import dataclass
@@ -6,6 +7,8 @@ from dataclasses import dataclass
 import boto3
 import botocore
 from botocore.config import Config
+
+logger = logging.getLogger(__name__)
 
 ALLOWED_MEM_VALUES = {1024, 2048, 3072, 4096, 5120, 6144}
 MIN_CONCURRENCY = 1
@@ -74,7 +77,7 @@ class ServerlessEndpoint:
         self.wait()
 
         if self._deployment_failed:
-            print(f"Failed to deploy endpoint with reason: {self._failure_reason}")
+            logger.warn(f"Failed to deploy endpoint {self.endpoint_name} with memory_size {self.memory_size}. Failure reason: {self._failure_reason} Endpoint will not be used")
         else:
             self._created = True
 
@@ -98,7 +101,7 @@ class ServerlessEndpoint:
         if (memory_size == self.memory_size) & (
             max_concurrency == self.max_concurrency
         ):
-            print(
+            logger.info(
                 "Updated configuration matches current configuration. No update required"
             )
             return None
@@ -156,7 +159,7 @@ class ServerlessEndpoint:
         metric_data_points = response["Datapoints"]
 
         if len(metric_data_points) == 0:
-            print(f"Did not get any data for the {metric_name} metric for endpoint {self.endpoint_name}")
+            logger.warn(f"Did not get any CloudWatch data for the {metric_name} metric for endpoint {self.endpoint_name}")
             return {"metric_name": metric_name}
         else:
             metric = metric_data_points[0]
@@ -221,6 +224,6 @@ class ServerlessEndpoint:
             return None
 
         resp = self.describe_endpoint()
-        print(f"Endpoint Status: {resp['EndpointStatus']}")
+        print(f"Endpoint {self.endpoint_name} Status: {resp['EndpointStatus']}")
 
         return resp
