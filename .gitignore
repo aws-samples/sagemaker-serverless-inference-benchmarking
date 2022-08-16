@@ -1,7 +1,7 @@
 **/__pycache__
 sm_serverless_benchmarking.egg-info
 dev_artifacts
-
+.vscode/
 
 
 # Jupyter Notebook
