@@ -10,12 +10,12 @@ from typing import Dict, List, Union
 import botocore.exceptions
 import pandas as pd
 
-from sagemaker_serverless_benchmarking.analysis import (
-    compute_cost_savings, summarize_concurrency_results,
-    summarize_stability_results)
-from sagemaker_serverless_benchmarking.endpoint import ServerlessEndpoint
-from sagemaker_serverless_benchmarking.report import generate_html_report
-from sagemaker_serverless_benchmarking.utils import read_example_args_file
+from sm_serverless_benchmarking.analysis import (compute_cost_savings,
+                                                 summarize_concurrency_results,
+                                                 summarize_stability_results)
+from sm_serverless_benchmarking.endpoint import ServerlessEndpoint
+from sm_serverless_benchmarking.report import generate_html_report
+from sm_serverless_benchmarking.utils import read_example_args_file
 
 
 def create_endpoint(
@@ -408,6 +408,7 @@ def run_serverless_benchmarks(
             df_stability_metric_summary,
             invoke_args_examples,
             average_response_size=avg_response_size,
+            result_save_path=result_save_path
         )
 
     except Exception as e:

@@ -9,7 +9,7 @@ INFERENCE_COST = {1024:0.0000200 / 1000,
 PROCESSING_COST = 0.016 / (1024**3)
 
 INSTANCE_MAPPING = {1024: "ml.t2.medium", 
-                    2014: "ml.t2.medium", 
+                    2048: "ml.t2.medium", 
                     3072: "ml.c5.large", 
                     4096: "ml.c5.large", 
                     5120: "ml.c5.large", 

@@ -9,8 +9,10 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from sagemaker_serverless_benchmarking.cost_constants import (
-    INFERENCE_COST, INSTANCE_MAPPING, MONTHLY_INSTANCE_COST, PROCESSING_COST)
+from sm_serverless_benchmarking.cost_constants import (INFERENCE_COST,
+                                                       INSTANCE_MAPPING,
+                                                       MONTHLY_INSTANCE_COST,
+                                                       PROCESSING_COST)
 
 
 def iqr(ps: pd.Series) -> float:
@@ -93,8 +95,8 @@ def summarize_stability_results(
     df_metric_summary.to_csv(save_path / "endpoint_metrics_summary.csv", index=True)
 
     latency_thresholds = df_benchmark_summary.eval(
-        """low = invocation_latency_mean - 3 *invocation_latency_iqr
-                                                 high = invocation_latency_mean + 3 *invocation_latency_iqr
+        """low = invocation_latency_mean - 5 *invocation_latency_iqr
+                                                 high = invocation_latency_mean + 5 *invocation_latency_iqr
                                                 """
     )[["low", "high"]]
 
@@ -139,8 +141,8 @@ def summarize_concurrency_results(
         f"{x[0]}_{x[1]}".strip("_") for x in df_outlier_thresh.columns.to_flat_index()
     ]
     df_outlier_thresh = df_outlier_thresh.eval(
-        """low = invocation_latency_mean - 3 *invocation_latency_iqr
-                                                     high = invocation_latency_mean + 3 *invocation_latency_iqr
+        """low = invocation_latency_mean - 5 *invocation_latency_iqr
+                                                     high = invocation_latency_mean + 5 *invocation_latency_iqr
                                                     """
     )[["max_concurrency", "num_clients", "low", "high"]]
 
@@ -246,6 +248,20 @@ def plot_savings_latency(df_stability_metric_summary: pd.DataFrame):
         ax2.text(
             x=memory - 128, y=latency, s=f"{latency:.2f}", color="white"
         ).set_backgroundcolor("#588157")
+    
+    min_latency = df_stability_metric_summary["average_latency"].min().round()
+    max_latency = df_stability_metric_summary["average_latency"].max().round()  
+    min_max_diff = max_latency - min_latency
+
+    if min_max_diff < 10:
+        yticks = np.linspace(min_latency-1, max_latency+1, 5)
+
+    elif min_max_diff < 50:
+        yticks = np.linspace(min_latency-1, max_latency+1, 10, dtype=np.int32)
+    else:
+        yticks = np.linspace(min_latency-1, max_latency+1, 20, dtype=np.int32)
+
+    ax2.set_yticks(yticks)
 
     for x in [ax, ax2]:
         x.spines["top"].set_visible(False)
@@ -292,13 +308,13 @@ def compute_cost_savings(
     ) * PROCESSING_COST
 
     df_stability_metric_summary["cost_per_invocation"] = (
-        df_stability_metric_summary.index.map(INFERENCE_COST) + endpoint_processing_cost
-    ) * df_stability_metric_summary["average_latency"]
+        df_stability_metric_summary.index.map(INFERENCE_COST) * df_stability_metric_summary["average_latency"]
+    ) + endpoint_processing_cost 
     df_stability_metric_summary["cost_per_1M_invocations"] = (
         df_stability_metric_summary["cost_per_invocation"] * 1_000_000
     )
     optimal_memory_config = int(
-        df_stability_metric_summary["cost_per_1M_invocations"].idxmin()
+        df_stability_metric_summary.eval("average_latency * cost_per_1M_invocations").idxmin()
     )
 
     average_cost_per_invocation = df_stability_metric_summary.loc[
@@ -313,7 +329,18 @@ def compute_cost_savings(
     instance_monthly_cost = MONTHLY_INSTANCE_COST[comparable_sagemaker_instance]
     break_even_invocations = instance_monthly_cost / average_cost_per_invocation
 
-    monthly_invocations = np.arange(0, break_even_invocations, 100_000, dtype=np.int32)
+    if break_even_invocations < 200_000:
+        stride = 10_000
+    elif break_even_invocations < 1_000_000:
+        stride = 50_000
+    elif break_even_invocations < 2_000_000:
+        stride = 100_000
+    elif break_even_invocations < 5_000_000:
+        stride = 200_000
+    else:
+        stride = 500_000
+
+    monthly_invocations = np.arange(stride, break_even_invocations, stride, dtype=np.int32)
     monthly_cost = monthly_invocations * average_cost_per_invocation
     monthly_percent_savings = np.round(
         100
@@ -330,12 +357,15 @@ def compute_cost_savings(
         )
     )
 
+    df_stability_metric_summary.to_csv(save_path / "metrics_with_cost.csv", index=False)
     df_savings.to_csv(save_path / "cost_savings_summary.csv", index=False)
     cost_latency_fig.savefig(save_path / "cost_vs_performance.png")
-
+    
+    df_stability_metric_summary.drop(["average_latency", "cost_per_invocation"], axis=1, inplace=True)
+    
     return (
         df_savings,
         optimal_memory_config,
         comparable_sagemaker_instance,
-        cost_latency_fig,
+        cost_latency_fig
     )

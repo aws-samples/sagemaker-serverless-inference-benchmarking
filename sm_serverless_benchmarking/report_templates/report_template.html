@@ -60,6 +60,7 @@
        <p>The charts below summarize the latency distributions under different load patterns (number of concurrent clients) and MaxConcurrency settings</p>
       <img src="data:image/png;base64,{{ context.concurrency_latency_distribution }}">
       <h2>Endpoint CloudWatch Metrics</h2>
+      <p>The average values of the metrics monitored by CloudWatch are captured below. The ModelSetupTime metric represents the time it takes to launch new compute resources for a serverless endpoint and indicates the impact of a cold start. Refer to the <a href='https://docs.aws.amazon.com/sagemaker/latest/dg/monitoring-cloudwatch.html'>documentation </a>for an explanation of each metric.</p>
        {{ context.concurrency_cloudwatch_metrics }}
        
    </body>

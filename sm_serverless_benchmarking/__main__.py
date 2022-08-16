@@ -4,14 +4,13 @@ import os
 if "SAGEMAKER_TRAINING_MODULE" in os.environ:
     print("Running in a SageMaker Environment")
     import shutil
-    shutil.copytree(".", "sagemaker_serverless_benchmarking")
+    shutil.copytree(".", "sm_serverless_benchmarking")
 
 
 import argparse
 from pathlib import Path
 
-from sagemaker_serverless_benchmarking.benchmark import \
-    run_serverless_benchmarks
+from sm_serverless_benchmarking.benchmark import run_serverless_benchmarks
 
 
 def parse_args():
@@ -22,7 +21,6 @@ def parse_args():
     parser.add_argument("--memory_sizes", type=int, nargs="+", choices=[1024, 2048, 3072, 4096, 5120, 6144], help="List of memory configurations to benchmark Defaults to [1024, 2048, 3072, 4096, 5120, 6144]")
     parser.add_argument("--stability_benchmark_invocations", type=int, help="Total number of invocations for the stability benchmark. Defaults to 1000")
     parser.add_argument("--stability_benchmark_error_thresh", type=int, help="The allowed number of endpoint invocation errors before the benchmark is terminated for that endpoint. Defaults to 3.")
-    parser.add_argument("--include_concurrency_benchmark", action='store_true', help="Run the concurrency benchmark with the optimal configuration from the stability benchmark. Defaults to True")
     parser.add_argument("--no_include_concurrency_benchmark", action='store_true', help="Do not run the concurrency benchmark with the optimal configuration from the stability benchmark. Defaults to False")
     parser.add_argument("--concurrency_benchmark_max_conc", type=int, nargs="+",  help="A list of max_concurency settings to benchmark. Defaults to [2, 4, 8]")
     parser.add_argument("--concurrency_benchmark_invocations", type=int, help="Total number of invocations for the concurency benchmark. Defaults to 1000")
@@ -31,10 +29,14 @@ def parse_args():
     args = parser.parse_args()
     arg_dict = vars(args)
     arg_dict = {k:v for k, v in arg_dict.items() if v is not None}
-
-    if arg_dict["no_include_concurrency_benchmark"]:
+   
+    
+    if not arg_dict["no_include_concurrency_benchmark"]:
+        arg_dict["include_concurrency_benchmark"] = True
+    else:
         arg_dict["include_concurrency_benchmark"] = False
-        arg_dict.pop("no_include_concurrency_benchmark")
+    
+    arg_dict.pop("no_include_concurrency_benchmark")
 
     return arg_dict
 

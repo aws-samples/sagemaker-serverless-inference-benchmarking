@@ -2,8 +2,11 @@
 requires      = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+py-modules = ["sm_serverless_benchmarking"]
+
 [project]
-name = "sagemaker-serverless-benchmarking"
+name = "sm-serverless-benchmarking"
 version = "0.1.0"
 description = "Benchmark sagemaker serverless endpoints for cost and performance"
 readme = "README.md"
