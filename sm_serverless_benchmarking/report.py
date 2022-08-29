@@ -41,7 +41,9 @@ def generate_html_report(
     ) as p:
         templates_path = p.parent
 
-    environment = Environment(loader=FileSystemLoader(templates_path))
+    environment = Environment(
+        loader=FileSystemLoader(templates_path)
+    )
     template = environment.get_template("report_template.html")
 
     stability_latency_distribution_encoded = b64_png_encode(
@@ -58,13 +60,24 @@ def generate_html_report(
             float_format="%.2f",
             justify="left",
             header=False,
-            na_rep=""
+            na_rep="",
+            escape=False,
         ),
         "stability_benchmark_summary": df_stability_summary.to_html(
-            index=True, float_format="%.2f", na_rep="", justify="center", notebook=True
+            index=True,
+            float_format="%.2f",
+            na_rep="",
+            justify="center",
+            notebook=True,
+            escape=False,
         ).replace("<td>", '<td align="center">'),
         "stability_endpoint_metrics": df_stability_metric_summary.to_html(
-            index=True, float_format="%.2f", justify="center", na_rep="", notebook=True
+            index=True,
+            float_format="%.2f",
+            justify="center",
+            na_rep="",
+            notebook=True,
+            escape=False,
         ).replace("<td>", '<td align="center">'),
         "stability_latency_distribution": stability_latency_distribution_encoded.decode(
             "utf8"
@@ -72,6 +85,7 @@ def generate_html_report(
         "cost_vs_performance": cost_vs_performance_encoded.decode("utf8"),
         "cost_savings_table": df_cost_savings.to_html(
             index=False,
+            escape=False,
             formatters={
                 "monthly_invocations": lambda x: f"{x:,}",
                 "serverless_monthly_cost": lambda x: f"${x:.2f}",
@@ -83,6 +97,7 @@ def generate_html_report(
         "comparable_instance": comparable_instance,
         "concurrency_benchmark_summary": df_concurrency_metrics.to_html(
             index=False,
+            escape=False,
             float_format="%.2f",
             na_rep="",
             justify="center",
@@ -96,7 +111,12 @@ def generate_html_report(
             "utf8"
         ),
         "concurrency_cloudwatch_metrics": df_concurrency_metric_summary.to_html(
-            index=True, float_format="%.2f", justify="center", na_rep="", notebook=True
+            index=True,
+            float_format="%.2f",
+            justify="center",
+            na_rep="",
+            notebook=True,
+            escape=False,
         ).replace("<td>", '<td align="center">'),
     }
 

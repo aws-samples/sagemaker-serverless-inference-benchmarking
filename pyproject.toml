@@ -7,13 +7,13 @@ py-modules = ["sm_serverless_benchmarking"]
 
 [project]
 name = "sm-serverless-benchmarking"
-version = "0.1.0"
+version = "0.1.1"
 description = "Benchmark sagemaker serverless endpoints for cost and performance"
 readme = "README.md"
-authors = [{ name = "Simon Zamarin", email = "szamarin@amazon.com" }]
+authors = [{ name = "Amazon Web Services"}]
 license = { file = "LICENSE" }
 classifiers = [
-    "License :: OSI Approved :: Apache Software License",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
 ]
