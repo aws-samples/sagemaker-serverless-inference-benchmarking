@@ -5,7 +5,7 @@ Tools to benchmark sagemaker serverless endpoint configurations and help find th
 ## Installation and Prerequisites
 To install the toolkit into your environment, first clone this repo. Then inside of the repo directory run
 ```
-python -m pip install .
+pip install sm-serverless-benchmarking
 ```
 In order to run the benchmark, your user profile or execution role would need to have the appropriate IAM Permissions Including:
 #### **SageMaker**

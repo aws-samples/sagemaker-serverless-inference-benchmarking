@@ -2,6 +2,7 @@
 sm_serverless_benchmarking.egg-info
 dev_artifacts
 .vscode/
+dist/
 
 
 # Jupyter Notebook

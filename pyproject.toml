@@ -2,12 +2,10 @@
 requires      = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-py-modules = ["sm_serverless_benchmarking"]
 
 [project]
 name = "sm-serverless-benchmarking"
-version = "0.1.1"
+version = "0.2.0"
 description = "Benchmark sagemaker serverless endpoints for cost and performance"
 readme = "README.md"
 authors = [{ name = "Amazon Web Services"}]

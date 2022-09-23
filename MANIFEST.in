@@ -1,2 +1,3 @@
-include sm_serverless_benchmarking/report_templates/*.html
+include src/sm_serverless_benchmarking/report_templates/*.html
+include src/sm_serverless_benchmarking/requirements.txt
 exclude sample_notebooks/
