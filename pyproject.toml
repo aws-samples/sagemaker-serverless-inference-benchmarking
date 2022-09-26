@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sm-serverless-benchmarking"
-version = "0.2.0"
+version = "0.2.1"
 description = "Benchmark sagemaker serverless endpoints for cost and performance"
 readme = "README.md"
 authors = [{ name = "Amazon Web Services"}]
