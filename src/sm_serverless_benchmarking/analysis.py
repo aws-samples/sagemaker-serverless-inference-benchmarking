@@ -315,7 +315,7 @@ def compute_cost_savings(
         df_stability_metric_summary["cost_per_invocation"] * 1_000_000
     )
 
-    discount_factor = np.linspace(1, 0.5, 6)
+    discount_factor = np.linspace(1, 0.5, f_stability_metric_summary.shape[0])
 
     optimal_memory_config = int(
         (
