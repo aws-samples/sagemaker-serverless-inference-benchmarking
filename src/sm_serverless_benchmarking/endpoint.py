@@ -227,3 +227,8 @@ class ServerlessEndpoint:
         print(f"Endpoint {self.endpoint_name} Status: {resp['EndpointStatus']}")
 
         return resp
+
+
+
+
+
