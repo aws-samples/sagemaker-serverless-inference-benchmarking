@@ -21,7 +21,7 @@ def args_constructor(
         if k == "model_name":
             args.extend([v])
         elif k == "invoke_args_examples_file":
-            args.extend([os.path.join(sm_job_input_dir, input_file_name)])
+            args.extend([f"{sm_job_input_dir}/{input_file_name}"])
         elif k == "result_save_path":
             args.extend([f"--{k}", sm_job_output_dir])
         elif k == "include_concurrency_benchmark":
